@@ -1,0 +1,21 @@
+meta {
+  name: question_four
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:3333/question-4
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: 8t8kpobC-idx42BZT7Funn7LNNSZDcKWroYk
+}
+
+body:json {
+  { 
+    "post_id":5
+  }
+}

@@ -1,0 +1,22 @@
+meta {
+  name: isnert-post
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3333/insert-post
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: xtX3Kgzw-3kZr2pncwh30uOccVC5ZCS2j_Dk
+}
+
+body:json {
+  {
+    "userId":4,
+    "content":"the world"
+  }
+}

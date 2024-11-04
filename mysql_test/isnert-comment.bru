@@ -1,0 +1,23 @@
+meta {
+  name: isnert-comment
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:3333/insert-comment
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: xtX3Kgzw-3kZr2pncwh30uOccVC5ZCS2j_Dk
+}
+
+body:json {
+  {
+    "userId":2,
+    "postId":2,
+    "content":"oaky"
+  }
+}
