@@ -56,42 +56,64 @@ export default class PostsController {
       return response.status(500).send(err.message)
     }
   }
-  async insertPost({ request, response }: HttpContext) {
+  public async insertPost({ request, response, auth }: HttpContext) {
     try {
-      const { userId, content } = request.all()
-      const post = new Post()
-      post.user_id = userId
-      post.content = content
-      await post.save()
-      return response.status(201).send(post)
-    } catch (err) {
-      return response.status(500).send(err.message)
+      const user = auth.getUserOrFail()
+      if (user) {
+        const content = {
+          content: request.input('content'),
+          user_id: user.id,
+        }
+        //await user.related('posts').create(content)
+        return response.status(201).send({ message: 'usered is here', user })
+      }
+    } catch (error) {
+      return response.status(400).send({
+        message: 'Failed to create post',
+        errors: error.messages || error.message,
+      })
     }
   }
-  async insertComment({ request, response }: HttpContext) {
+  async insertComment({ request, response, auth }: HttpContext) {
     try {
-      const { userId, postId, content } = request.all()
+      const { postId, content } = request.all()
+      const userId = auth.use('web').user?.id
       const comment = new Comment()
-      comment.user_id = userId
-      comment.post_id = postId
-      comment.content = content
-      await comment.save()
-      return response.status(201).send(comment)
+      if (userId) {
+        comment.user_id = userId
+        comment.post_id = postId
+        comment.content = content
+        await comment.save()
+        return response.status(201).send(comment)
+      }
+      return response.status(403).send('unauthorized')
+    } catch (err) {
+      return response.status(404).send(err.message)
+    }
+  }
+  async insertReply({ request, response, auth }: HttpContext) {
+    try {
+      const { commentId, content } = request.all()
+      const reply = new Reply()
+      const userId = auth.use('web').user?.id
+      if (userId) {
+        reply.userId = userId
+        reply.commentId = commentId
+        reply.content = content
+        await reply.save()
+        return response.status(201).send(reply)
+      }
+      return response.status(403).send('unauthorized')
     } catch (err) {
       return response.status(500).send(err.message)
     }
   }
-  async insertReply({ request, response }: HttpContext) {
+  async getAllPost({ response }: HttpContext) {
     try {
-      const { userId, commentId, content } = request.all()
-      const reply = new Reply()
-      reply.userId = userId
-      reply.commentId = commentId
-      reply.content = content
-      await reply.save()
-      return response.status(201).send(reply)
+      const allPost = await Post.query().select('*').orderBy('id', 'desc')
+      return response.status(200).send(allPost)
     } catch (err) {
-      return response.status(500).send(err.message)
+      response.status(500).send(err.message)
     }
   }
 }

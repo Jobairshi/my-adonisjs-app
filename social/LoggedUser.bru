@@ -1,0 +1,19 @@
+meta {
+  name: LoggedUser
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3333/logged-user
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email":"tan3333@gmail.com",
+    "password":"12345678",
+    "name":"ass"
+  }
+}
