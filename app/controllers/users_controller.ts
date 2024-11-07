@@ -86,7 +86,7 @@ export default class UsersController {
   async loggedUser({ response, auth }: HttpContext) {
     try {
       const loggeduser = auth.use('web').user
-      console.log("this is user")
+      console.log('this is user')
       return response.status(200).send(loggeduser)
     } catch (err) {
       return response.status(403).send('unauthrized')

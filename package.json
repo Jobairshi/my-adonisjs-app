@@ -42,6 +42,8 @@
     "@swc/core": "1.7.26",
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.7.5",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.7",
     "eslint": "^9.12.0",
     "hot-hook": "^0.3.1",
     "pino-pretty": "^11.2.2",
@@ -51,6 +53,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@adonisjs/application": "^8.3.1",
     "@adonisjs/auth": "^9.2.3",
     "@adonisjs/core": "^6.14.1",
     "@adonisjs/cors": "^2.2.1",
@@ -60,10 +63,14 @@
     "@adonisjs/static": "^1.1.1",
     "@adonisjs/vite": "^3.0.0",
     "@vinejs/vine": "^2.1.0",
+    "adonis-autoswagger": "^3.63.0",
+    "adonis5-swagger": "^1.4.1",
     "edge.js": "^6.2.0",
     "luxon": "^3.5.0",
     "mysql2": "^3.11.3",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "hotHook": {
     "boundaries": [
