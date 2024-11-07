@@ -1,0 +1,24 @@
+meta {
+  name: getAllpost-bypaginate
+  type: http
+  seq: 14
+}
+
+get {
+  url: http://localhost:3333/all-post
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: Bearer oat_Mzg.SEgyREZYQ0pXak4zNFRUTFJzak10c2FnRy1oTXRaSHNuOUd6SVVzazE4OTY4Njc0MTk
+  Authorization: Bearer oat_Mzg.SEgyREZYQ0pXak4zNFRUTFJzak10c2FnRy1oTXRaSHNuOUd6SVVzazE4OTY4Njc0MTk
+}
+
+body:json {
+  {
+    "email":"tan3333@gmail.com",
+    "password":"12345678",
+    "name":"ass"
+  }
+}

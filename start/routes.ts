@@ -42,6 +42,7 @@ router.get('/all-post', [PostsController, 'getAllPost']).use(
     guards: ['api'],
   })
 )
+router.delete('/delete-post', [PostsController, 'deletePost']).use(middleware.auth())
 router.get('/all-post-comment/:postId', [PostsController, 'getCommentByPostId']).use(
   middleware.auth({
     guards: ['api'],
@@ -63,3 +64,8 @@ router
     })
   )
 router.post('/add-reaction', [PostsController, 'toggleReaction']).use(middleware.auth())
+router.get('/limit-post', [PostsController, 'getPostByLimit']).use(
+  middleware.auth({
+    guards: ['api'],
+  })
+)

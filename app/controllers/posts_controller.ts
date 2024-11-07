@@ -106,8 +106,10 @@ export default class PostsController {
       return response.status(500).send(err.message)
     }
   }
-  async getAllPost({ response }: HttpContext) {
+  async getAllPost({ request, response }: HttpContext) {
     try {
+      // const limit = Number(request.input('limit', 10))
+      // const page = Number(request.input('page', 1))
       const allPost = await Post.query()
         .preload('comments', (qu) => {
           qu.preload('replies')
@@ -115,6 +117,24 @@ export default class PostsController {
         .preload('reactions')
         .preload('user')
         .orderBy('id', 'desc')
+      return response.status(200).send(allPost)
+    } catch (err) {
+      response.status(500).send(err.message)
+    }
+  }
+  async getPostByLimit({ request, response }: HttpContext) {
+    try {
+      const limit = Number(request.input('limit', 10))
+      const page = Number(request.input('page', 1))
+      console.log(limit, page)
+      const allPost = await Post.query()
+        .preload('comments', (qu) => {
+          qu.preload('replies')
+        })
+        .preload('reactions')
+        .preload('user')
+        .orderBy('id', 'desc')
+        .paginate(page, limit)
       return response.status(200).send(allPost)
     } catch (err) {
       response.status(500).send(err.message)
@@ -148,5 +168,17 @@ export default class PostsController {
     return response
       .status(200)
       .send(await Reaction.create({ userId: userId, postId: postId, type: reactionType }))
+  }
+  async deletePost({ request, response }: HttpContext) {
+    try {
+      const postId = request.input('postId')
+      const del = await Post.query().where('id', postId).delete()
+      if (del) {
+        return response.status(200).send('Post deleted successfully')
+      }
+      return response.status(404).send('Post not found')
+    } catch (err) {
+      return response.status(500).send(err.message)
+    }
   }
 }
