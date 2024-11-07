@@ -1,0 +1,23 @@
+meta {
+  name: add-reaction
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:3333/add-reaction
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: zPXukH85-3Baj2ftangh-hSw8FLQ33INTdaQ
+}
+
+body:json {
+  {
+    "postId":28,
+    "reactionType":1
+  }
+  
+}

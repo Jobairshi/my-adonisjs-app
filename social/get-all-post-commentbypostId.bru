@@ -1,0 +1,22 @@
+meta {
+  name: get-all-post-commentbypostId
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:3333/all-post-comment/2
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: zPXukH85-3Baj2ftangh-hSw8FLQ33INTdaQ
+  Authorization: Bearer oat_MzA.NHJUVmtpejRNMmlPV3FYYlpCNjdERzhJNVV5OU1BVDBJNW42amNucDEzMDY4MTg1MjI
+}
+
+body:json {
+  {
+    "content":"hello world"
+  }
+}

@@ -1,0 +1,22 @@
+meta {
+  name: insertPost
+  type: http
+  seq: 9
+}
+
+post {
+  url: http://localhost:3333/insert-post
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: zPXukH85-3Baj2ftangh-hSw8FLQ33INTdaQ
+  Authorization: Bearer oat_MzA.NHJUVmtpejRNMmlPV3FYYlpCNjdERzhJNVV5OU1BVDBJNW42amNucDEzMDY4MTg1MjI
+}
+
+body:json {
+  {
+    "content":"hello world"
+  }
+}

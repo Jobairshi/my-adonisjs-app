@@ -2,6 +2,8 @@ import User from '#models/user'
 import { loginValidator, registerValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
+import db from '@adonisjs/lucid/services/db'
+
 const di = 12
 export default class UsersController {
   async login({ request, response }: HttpContext) {
@@ -47,7 +49,20 @@ export default class UsersController {
           message: 'Invalid email or password',
         })
       }
-      // console.log(user)
+      // check if user has a token
+      // if(find){
+      //   return response.status(400).send({
+      //     message: 'User already logged in',
+      // })
+      // console.log(': fin : ', find)
+      const token = await User.accessTokens.create(user, [
+        'server:create',
+        'server:read',
+        'server:update',
+        'server:delete',
+      ])
+      //  await User.accessTokens.delete(user, token.identifier)
+      // console.log(user){}
       const passwordVerified = await hash.verify(user.password, password)
       //console.log(password, user.password, passwordVerified)
       if (!passwordVerified) {
@@ -56,9 +71,10 @@ export default class UsersController {
         })
       }
       await auth.use('web').login(user, !!request.input('remember_me')) // i added
-      console.log(auth.use('web').user)
+      //console.log(auth.use('web').user)
       return response.status(200).send({
         user: user,
+        token: token,
       })
     } catch (error) {
       return response.status(400).send({
@@ -70,18 +86,24 @@ export default class UsersController {
   async loggedUser({ response, auth }: HttpContext) {
     try {
       const loggeduser = auth.use('web').user
-      return loggeduser
+      console.log("this is user")
+      return response.status(200).send(loggeduser)
     } catch (err) {
       return response.status(403).send('unauthrized')
     }
   }
 
-  async log_out({ response, auth }: HttpContext) {
+  async log_out({ request, response, auth }: HttpContext) {
     try {
-      return auth.use('web').logout()
+      // const user = await auth.use('api').authenticate()
+      // const userId = user.currentAccessToken
+      // console.log(userId)
+      // await User.accessTokens.delete(user, user.currentAccessToken.identifier)
+      await auth.use('web').logout()
+      return response.status(200).send('Logged out successfully')
     } catch (err) {
-      return response.status(403).send('unauthrized')
+      console.error(err)
+      return response.status(403).send('Unauthorized')
     }
   }
-  
 }

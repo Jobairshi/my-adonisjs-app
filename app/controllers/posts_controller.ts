@@ -4,6 +4,8 @@ import Post from '#models/post'
 import Comment from '#models/comment'
 import User from '#models/user'
 import Reply from '#models/reply'
+import Reaction from '#models/reaction'
+import repl from '@adonisjs/core/services/repl'
 
 export default class PostsController {
   async questionOne({ response }: HttpContext) {
@@ -58,33 +60,29 @@ export default class PostsController {
   }
   public async insertPost({ request, response, auth }: HttpContext) {
     try {
-      const user = auth.getUserOrFail()
+      const user = await auth.use('api').authenticate()
       if (user) {
         const content = {
           content: request.input('content'),
           user_id: user.id,
         }
-        //await user.related('posts').create(content)
-        return response.status(201).send({ message: 'usered is here', user })
+        return response.status(201).send(await user.related('posts').create(content))
       }
+      return response.status(403).send('unauthorized')
     } catch (error) {
-      return response.status(400).send({
-        message: 'Failed to create post',
-        errors: error.messages || error.message,
-      })
+      return response.status(404).send('it is here', error.message)
     }
   }
   async insertComment({ request, response, auth }: HttpContext) {
     try {
       const { postId, content } = request.all()
-      const userId = auth.use('web').user?.id
       const comment = new Comment()
-      if (userId) {
-        comment.user_id = userId
+      const user = await auth.use('api').authenticate()
+      if (user) {
+        comment.user_id = user.id
         comment.post_id = postId
         comment.content = content
-        await comment.save()
-        return response.status(201).send(comment)
+        return response.status(201).send(await comment.save())
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
@@ -93,15 +91,15 @@ export default class PostsController {
   }
   async insertReply({ request, response, auth }: HttpContext) {
     try {
-      const { commentId, content } = request.all()
+      const { commentId, content, postId } = request.all()
       const reply = new Reply()
       const userId = auth.use('web').user?.id
       if (userId) {
         reply.userId = userId
         reply.commentId = commentId
         reply.content = content
-        await reply.save()
-        return response.status(201).send(reply)
+        reply.postId = postId
+        return response.status(201).send(await reply.save())
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
@@ -110,10 +108,45 @@ export default class PostsController {
   }
   async getAllPost({ response }: HttpContext) {
     try {
-      const allPost = await Post.query().select('*').orderBy('id', 'desc')
+      const allPost = await Post.query()
+        .preload('comments', (qu) => {
+          qu.preload('replies')
+        })
+        .preload('reactions')
+        .preload('user')
+        .orderBy('id', 'desc')
       return response.status(200).send(allPost)
     } catch (err) {
       response.status(500).send(err.message)
     }
+  }
+  async getCommentByPostId({ params, response }: HttpContext) {
+    try {
+      const postId = params.postId
+      //  console.log(postId)
+      const answer = await Comment.query().where('post_id', postId)
+      return response.status(200).send(answer)
+    } catch (err) {
+      return response.status(500).send(err.message)
+    }
+  }
+  async toggleReaction({ request, response, auth }: HttpContext) {
+    const { postId, reactionType } = request.all()
+    console.log(postId, reactionType)
+    const userId = auth.use('web').user?.id
+    if (!userId) {
+      return response.status(403).send('unauthorized')
+    }
+    const reaction = await Reaction.query()
+      .where('user_id', userId)
+      .where('post_id', postId)
+      .first()
+    if (reaction) {
+      await reaction.delete()
+      return response.status(200).send({ message: 'Reaction removed' })
+    }
+    return response
+      .status(200)
+      .send(await Reaction.create({ userId: userId, postId: postId, type: reactionType }))
   }
 }

@@ -1,0 +1,23 @@
+meta {
+  name: login-seesison
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:3333/loginUser-session
+  body: json
+  auth: none
+}
+
+headers {
+  X-CSRF-TOKEN: zPXukH85-3Baj2ftangh-hSw8FLQ33INTdaQ
+}
+
+body:json {
+  {
+    "email":"Jesan42223@gmail.com",
+    "password":"Jesan42223@gmail.com",
+    "remember_me":true
+  }
+}

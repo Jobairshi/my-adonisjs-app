@@ -6,6 +6,7 @@ import User from './user.js'
 import Comment from './comment.js'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import Reaction from './reaction.js'
+import Reply from './reply.js'
 
 export default class Post extends BaseModel {
   public serializeExtras = true
@@ -33,4 +34,6 @@ export default class Post extends BaseModel {
   declare comments: HasMany<typeof Comment>
   @hasMany(() => Reaction)
   declare reactions: HasMany<typeof Reaction>
+  @hasMany(() => Reply)
+  declare replies: HasMany<typeof Reply>
 }

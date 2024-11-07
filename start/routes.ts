@@ -21,15 +21,28 @@ router.get('/question-1', [PostsController, 'questionOne']).use(middleware.auth(
 router.get('/question-2', [PostsController, 'questionTwo'])
 router.get('/question-3', [PostsController, 'questionThree'])
 router.delete('/question-4', [PostsController, 'questionFour'])
-router.post('/insert-post', [PostsController, 'insertPost']).use(middleware.auth())
-router.post('/insert-comment', [PostsController, 'insertComment']).use(middleware.auth())
+router.post('/insert-post', [PostsController, 'insertPost']).use(
+  middleware.auth({
+    guards: ['api'],
+  })
+)
+router.post('/insert-comment', [PostsController, 'insertComment']).use(
+  middleware.auth({
+    guards: ['api'],
+  })
+)
 router.post('/insert-reply', [PostsController, 'insertReply']).use(middleware.auth())
-router.post('/login', [UsersController, 'loginUser']).use(middleware.guest())
+router.post('/login', [UsersController, 'loginUser'])
 // router.post('/login', [UsersController, 'login'])
 router.post('/register', [UsersController, 'registerUser'])
-router.post('/logged-user', [UsersController, 'loggedUser']).use(middleware.auth())
-router.get('/log-out', [UsersController, 'log_out']).use(middleware.auth())
+router.get('/logged-user', [UsersController, 'loggedUser']).use(middleware.auth())
+router.post('/log-out', [UsersController, 'log_out']).use(middleware.auth())
 router.get('/all-post', [PostsController, 'getAllPost']).use(
+  middleware.auth({
+    guards: ['api'],
+  })
+)
+router.get('/all-post-comment/:postId', [PostsController, 'getCommentByPostId']).use(
   middleware.auth({
     guards: ['api'],
   })
@@ -49,3 +62,4 @@ router
       guards: ['api'],
     })
   )
+router.post('/add-reaction', [PostsController, 'toggleReaction']).use(middleware.auth())
