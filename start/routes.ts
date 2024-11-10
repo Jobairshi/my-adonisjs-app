@@ -69,3 +69,4 @@ router.get('/limit-post', [PostsController, 'getPostByLimit']).use(
     guards: ['api'],
   })
 )
+router.put('/update-post', [PostsController, 'editPost']).use(middleware.auth())

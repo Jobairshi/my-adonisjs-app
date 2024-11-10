@@ -181,4 +181,15 @@ export default class PostsController {
       return response.status(500).send(err.message)
     }
   }
+  async editPost({ request, response }: HttpContext) {
+    try {
+      const postId = request.input('postId')
+      const post = await Post.findOrFail(postId)
+      post.content = request.input('content')
+      await post.save()
+      return response.status(200).send('Post updated successfully')
+    } catch (err) {
+      return response.status(500).send(err.message)
+    }
+  }
 }
