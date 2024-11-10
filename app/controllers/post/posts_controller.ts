@@ -74,7 +74,7 @@ export default class PostsController {
       }
       return response.status(403).send('unauthorized')
     } catch (error) {
-      return response.status(404).send('it is here', error.message)
+      return response.status(404).send(error.messages)
     }
   }
   async insertComment({ request, response, auth }: HttpContext) {
@@ -87,7 +87,7 @@ export default class PostsController {
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
-      return response.status(404).send(err.message)
+      return response.status(404).send(err.messages)
     }
   }
   async insertReply({ request, response, auth }: HttpContext) {
@@ -105,7 +105,7 @@ export default class PostsController {
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
-      return response.status(500).send(err.message)
+      return response.status(500).send(err.messages)
     }
   }
   async getAllPost({ response }: HttpContext) {
@@ -114,7 +114,7 @@ export default class PostsController {
       console.log(allPost)
       return response.status(200).send(allPost)
     } catch (err) {
-      response.status(500).send(err.message)
+      response.status(500).send(err.messages)
     }
   }
   async getPostByLimit({ request, response }: HttpContext) {
@@ -125,7 +125,7 @@ export default class PostsController {
       const allPost = await post_service.getPostByLimit(limit, page)
       return response.status(200).send(allPost)
     } catch (err) {
-      response.status(500).send(err.message)
+      response.status(500).send(err.messages)
     }
   }
   async getCommentByPostId({ params, response }: HttpContext) {
@@ -135,7 +135,7 @@ export default class PostsController {
       const answer = await post_service.getCommentByPostId(postId)
       return response.status(200).send(answer)
     } catch (err) {
-      return response.status(500).send(err.message)
+      return response.status(500).send(err.messages)
     }
   }
   async toggleReaction({ request, response, auth }: HttpContext) {
@@ -155,7 +155,7 @@ export default class PostsController {
       const del = await post_service.deletePost(payload.postId)
       return response.status(200).send(del)
     } catch (err) {
-      return response.status(500).send(err.message)
+      return response.status(500).send(err.messages)
     }
   }
   async editPost({ request, response }: HttpContext) {
@@ -164,7 +164,7 @@ export default class PostsController {
       const updatedPost = await post_service.editPost(paylaod.postId, paylaod.content)
       return response.status(200).send(updatedPost)
     } catch (err) {
-      return response.status(500).send(err.message)
+      return response.status(500).send(err.messages)
     }
   }
 }
