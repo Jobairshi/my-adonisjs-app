@@ -6,7 +6,7 @@ router
   .group(() => {
     router.post('/insert-post', [PostsController, 'insertPost']).use(
       middleware.auth({
-        guards: ['api', 'web'],
+        guards: ['web'],
       })
     )
     router.post('/insert-comment', [PostsController, 'insertComment']).use(
@@ -35,5 +35,5 @@ router
     )
     router.put('/update-post', [PostsController, 'editPost']).use(middleware.auth())
   })
-  .prefix('/post')
+  .prefix('/posts')
   .middleware([middleware.auth({ guards: ['web'] })])
