@@ -7,7 +7,7 @@ vine.messagesProvider = new SimpleMessagesProvider({
   'minLength': 'The {{ field }} field must be {{ min }} characters long',
   'maxLength': 'The {{ field }} field must be 5 between {{ max }} characters',
   'username.required': 'Please choose a username for your account',
-  'content.required': 'Please choose a username for your account',
+  'content.required': 'Please choose a content for your account',
   'id.required': 'Id is required',
 })
 export const insertPostValidator = vine.compile(
