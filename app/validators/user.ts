@@ -37,4 +37,3 @@ export const loginValidator = vine.compile(
     password: vine.string().trim().minLength(8).maxLength(255),
   })
 )
-
