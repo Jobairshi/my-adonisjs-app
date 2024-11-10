@@ -3,9 +3,15 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Post from '#models/post'
 import Comment from '#models/comment'
 import User from '#models/user'
-import Reply from '#models/reply'
-import Reaction from '#models/reaction'
-import repl from '@adonisjs/core/services/repl'
+import post_service from './post_service.js'
+import {
+  addReactionValidator,
+  deletePostValidator,
+  insertCommentValidator,
+  insertPostValidator,
+  insertReplyValidator,
+  updatePostValidator,
+} from './post_validator.js'
 
 export default class PostsController {
   async questionOne({ response }: HttpContext) {
@@ -60,13 +66,11 @@ export default class PostsController {
   }
   public async insertPost({ request, response, auth }: HttpContext) {
     try {
-      const user = await auth.use('api').authenticate()
+      const user = await auth.use('web').authenticate()
+      const payload = await request.validateUsing(insertPostValidator)
       if (user) {
-        const content = {
-          content: request.input('content'),
-          user_id: user.id,
-        }
-        return response.status(201).send(await user.related('posts').create(content))
+        const post = await post_service.insertPost(user.id, payload.content)
+        return response.status(201).send(post)
       }
       return response.status(403).send('unauthorized')
     } catch (error) {
@@ -75,14 +79,11 @@ export default class PostsController {
   }
   async insertComment({ request, response, auth }: HttpContext) {
     try {
-      const { postId, content } = request.all()
-      const comment = new Comment()
-      const user = await auth.use('api').authenticate()
+      const user = await auth.use('web').authenticate()
+      const payload = await request.validateUsing(insertCommentValidator)
       if (user) {
-        comment.user_id = user.id
-        comment.post_id = postId
-        comment.content = content
-        return response.status(201).send(await comment.save())
+        const comment = post_service.insertComment(user.id, payload.postId, payload.content)
+        return response.status(201).send(comment)
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
@@ -91,32 +92,26 @@ export default class PostsController {
   }
   async insertReply({ request, response, auth }: HttpContext) {
     try {
-      const { commentId, content, postId } = request.all()
-      const reply = new Reply()
+      const payload = await request.validateUsing(insertReplyValidator)
       const userId = auth.use('web').user?.id
       if (userId) {
-        reply.userId = userId
-        reply.commentId = commentId
-        reply.content = content
-        reply.postId = postId
-        return response.status(201).send(await reply.save())
+        const reply = post_service.insertReply(
+          userId,
+          payload.commentId,
+          payload.postId,
+          payload.content
+        )
+        return response.status(201).send(reply)
       }
       return response.status(403).send('unauthorized')
     } catch (err) {
       return response.status(500).send(err.message)
     }
   }
-  async getAllPost({ request, response }: HttpContext) {
+  async getAllPost({ response }: HttpContext) {
     try {
-      // const limit = Number(request.input('limit', 10))
-      // const page = Number(request.input('page', 1))
-      const allPost = await Post.query()
-        .preload('comments', (qu) => {
-          qu.preload('replies')
-        })
-        .preload('reactions')
-        .preload('user')
-        .orderBy('id', 'desc')
+      const allPost = await post_service.getAllPost()
+      console.log(allPost)
       return response.status(200).send(allPost)
     } catch (err) {
       response.status(500).send(err.message)
@@ -126,15 +121,8 @@ export default class PostsController {
     try {
       const limit = Number(request.input('limit', 10))
       const page = Number(request.input('page', 1))
-      console.log(limit, page)
-      const allPost = await Post.query()
-        .preload('comments', (qu) => {
-          qu.preload('replies')
-        })
-        .preload('reactions')
-        .preload('user')
-        .orderBy('id', 'desc')
-        .paginate(page, limit)
+      // console.log(limit, page)
+      const allPost = await post_service.getPostByLimit(limit, page)
       return response.status(200).send(allPost)
     } catch (err) {
       response.status(500).send(err.message)
@@ -144,7 +132,7 @@ export default class PostsController {
     try {
       const postId = params.postId
       //  console.log(postId)
-      const answer = await Comment.query().where('post_id', postId)
+      const answer = await post_service.getCommentByPostId(postId)
       return response.status(200).send(answer)
     } catch (err) {
       return response.status(500).send(err.message)
@@ -154,40 +142,27 @@ export default class PostsController {
     const { postId, reactionType } = request.all()
     console.log(postId, reactionType)
     const userId = auth.use('web').user?.id
+    const payload = await request.validateUsing(addReactionValidator)
     if (!userId) {
       return response.status(403).send('unauthorized')
     }
-    const reaction = await Reaction.query()
-      .where('user_id', userId)
-      .where('post_id', postId)
-      .first()
-    if (reaction) {
-      await reaction.delete()
-      return response.status(200).send({ message: 'Reaction removed' })
-    }
-    return response
-      .status(200)
-      .send(await Reaction.create({ userId: userId, postId: postId, type: reactionType }))
+    const reaction = await post_service.toggleReaction(userId, payload.postId, payload.reactionType)
+    return response.status(200).send(reaction)
   }
   async deletePost({ request, response }: HttpContext) {
     try {
-      const postId = request.input('postId')
-      const del = await Post.query().where('id', postId).delete()
-      if (del) {
-        return response.status(200).send('Post deleted successfully')
-      }
-      return response.status(404).send('Post not found')
+      const payload = await request.validateUsing(deletePostValidator)
+      const del = await post_service.deletePost(payload.postId)
+      return response.status(200).send(del)
     } catch (err) {
       return response.status(500).send(err.message)
     }
   }
   async editPost({ request, response }: HttpContext) {
     try {
-      const postId = request.input('postId')
-      const post = await Post.findOrFail(postId)
-      post.content = request.input('content')
-      await post.save()
-      return response.status(200).send('Post updated successfully')
+      const paylaod = await request.validateUsing(updatePostValidator)
+      const updatedPost = await post_service.editPost(paylaod.postId, paylaod.content)
+      return response.status(200).send(updatedPost)
     } catch (err) {
       return response.status(500).send(err.message)
     }
