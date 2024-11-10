@@ -33,7 +33,7 @@ export const deletePostValidator = vine.compile(
     postId: vine.number(),
   })
 )
-
+vine
 export const updatePostValidator = vine.compile(
   vine.object({
     postId: vine.number(),

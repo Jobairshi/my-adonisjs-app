@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 import User from '#models/user'
 import '../app/controllers/post/post_routes.js'
+import { HttpContextExtender } from '../app/interfaces/interface_exporter.js'
 
 router.on('/').render('pages/home')
 router.get('/csrf', async ({ request }) => {
@@ -38,3 +39,9 @@ router
       guards: ['api'],
     })
   )
+
+router
+  .get('lets-stuck', async (ctx) => {
+    ctx.response.send({ user: ctx.user_info, loction: ctx.location })
+  })
+  .use(middleware.userLocation())

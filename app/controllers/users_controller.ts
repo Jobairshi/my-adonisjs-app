@@ -19,7 +19,11 @@ export default class UsersController {
 
   public async registerUser({ request, response }: HttpContext) {
     try {
-      const validatedData = await registerValidator.validate(request.all())
+      const validatedData = await request.validateUsing(registerValidator,{
+        meta:{
+          userId:user.id
+        }
+      })
       const { name, email, password } = validatedData
       const existingUser = await User.findBy('email', email)
       if (existingUser) {

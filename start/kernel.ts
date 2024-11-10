@@ -10,6 +10,7 @@
 
 import router from '@adonisjs/core/services/router'
 import server from '@adonisjs/core/services/server'
+import { HttpContextExtender } from '../app/interfaces/interface_exporter';
 
 /**
  * The error handler is used to convert an exception
@@ -45,6 +46,7 @@ router.use([
  * the routes or the routes group.
  */
 export const middleware = router.named({
+  userLocation: () => import('#middleware/user_location_middleware'),
   basicAuth: () => import('#middleware/basic_auth_middleware'),
   guest: () => import('#middleware/guest_middleware'),
   auth: () => import('#middleware/auth_middleware'),
