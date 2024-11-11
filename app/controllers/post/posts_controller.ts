@@ -167,4 +167,13 @@ export default class PostsController {
       return response.status(500).send(err.messages)
     }
   }
+  async getUserPost({ auth, response }: HttpContext) {
+    try {
+      const user = await auth.use('web').authenticate()
+      const posts = await Post.query().withScopes((scopes) => scopes.getUserPost(user))
+      return response.status(200).send(posts)
+    } catch (err) {
+      return response.status(404).send(err.message)
+    }
+  }
 }

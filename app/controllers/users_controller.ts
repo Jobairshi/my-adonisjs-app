@@ -19,18 +19,8 @@ export default class UsersController {
 
   public async registerUser({ request, response }: HttpContext) {
     try {
-      const validatedData = await request.validateUsing(registerValidator,{
-        meta:{
-          userId:user.id
-        }
-      })
+      const validatedData = await request.validateUsing(registerValidator)
       const { name, email, password } = validatedData
-      const existingUser = await User.findBy('email', email)
-      if (existingUser) {
-        return response.status(400).send({
-          message: 'User with this email already exists',
-        })
-      }
       const user = await User.create({
         name,
         email,
@@ -40,14 +30,13 @@ export default class UsersController {
 
       return response.status(200).send(user)
     } catch (error) {
-      return response.status(400).send(error.message)
+      return response.status(400).send(error.messages)
     }
   }
   public async loginUser({ request, response, auth }: HttpContext) {
     try {
       const validatedData = await loginValidator.validate(request.all())
       const { email, password } = validatedData
-
       const user = await User.findBy('email', email)
       if (!user) {
         return response.status(400).send({
@@ -110,5 +99,37 @@ export default class UsersController {
       console.error(err)
       return response.status(403).send('Unauthorized')
     }
+  }
+  async rawQuery({ response }: HttpContext) {
+    const users = await db.rawQuery('SELECT id,name,email FROM users ORDER BY id DESC')
+    return response.status(200).send(users[0])
+  }
+  async PostionalplaceholderQuery({ response }: HttpContext) {
+    const userss = await User.query().where('id', 28)
+    const users = await db.rawQuery('select * from users where id = ? OR name = ?', [28, 'jesan'])
+    const userwithcolname = await db.rawQuery('select * from users where ?? = ? OR ?? = ?', [
+      'users.id',
+      28,
+      'users.name',
+      'jesan',
+    ])
+    return response
+      .status(200)
+      .send({ user_qu: userss, user_db: users[0], user_with_col_name: userwithcolname })
+  }
+  async NamedplaceholderQuery({ response }: HttpContext) {
+    const users = await db.rawQuery('select * from users where id = :id', {
+      id: 29,
+    })
+    const userwithcolname = await db.rawQuery(
+      'select * from users where :column: = :value AND :column2: = :value2',
+      {
+        column: 'id',
+        value: 27,
+        column2: 'name',
+        value2: 'jesan',
+      }
+    )
+    return response.status(200).send({ user_db: users[0], user_with_col_name: userwithcolname[0] })
   }
 }

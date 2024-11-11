@@ -1,5 +1,4 @@
 import vine, { SimpleMessagesProvider } from '@vinejs/vine'
-import { rules, schema, validator } from '@adonisjs/validator'
 vine.messagesProvider = new SimpleMessagesProvider({
   'required': 'The {{ field }} field is required',
   'string': 'The value of {{ field }} field must be a string',
@@ -17,14 +16,14 @@ export const registerValidator = vine.compile(
       .string()
       .email()
       .maxLength(255)
-      .unique(async (db, value, field) => {
-        const user = await db
-          .from('users')
-          .whereNot('id', field.meta.userId)
-          .where('email', value)
-          .first()
+      .exists(async (db, value) => {
+        const user = await db.from('users').where('email', value).first()
         return !user
       }),
+    // .unique(async (db, value) => {
+    //   const user = await db.from('users').where('email', value).first()
+    //   return !user
+    // }),
     // email:schema.string([
     //   rules
     // ])

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany, scope } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 
@@ -10,6 +10,12 @@ import Reply from './reply.js'
 
 export default class Post extends BaseModel {
   public serializeExtras = true
+
+  public static getUserPost = scope((query, user: User) => {
+    // console.log('we are in post model', user.id)
+    query.where('user_id', '=', user.id)
+  })
+
   @column({ isPrimary: true })
   declare id: number
 
