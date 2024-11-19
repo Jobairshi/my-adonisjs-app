@@ -132,4 +132,9 @@ export default class UsersController {
     )
     return response.status(200).send({ user_db: users[0], user_with_col_name: userwithcolname[0] })
   }
+  async lazyLoading({ response }: HttpContext) {
+    const user = await User.find(28)
+    await user?.load('posts')
+    return user?.serialize()
+  }
 }
